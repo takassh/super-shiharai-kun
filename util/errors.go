@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"encoding/json"
@@ -21,9 +21,9 @@ type Const struct {
 type Errors map[string]string
 
 var once sync.Once
-var errorCodes *Const
+var ErrorCodes *Const
 
-func loadErrors() *Const {
+func LoadErrors() *Const {
 	once.Do(func() {
 		var constant *Const
 		constFile, err := os.Open("errors.json")
@@ -38,10 +38,10 @@ func loadErrors() *Const {
 			panic(err)
 		}
 
-		errorCodes = constant
+		ErrorCodes = constant
 	})
 
-	return errorCodes
+	return ErrorCodes
 }
 
 // GetError get error by error code, if error key not found, return "undefined"

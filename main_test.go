@@ -1,4 +1,4 @@
-package main
+package main_test
 
 import (
 	"bytes"
@@ -14,8 +14,18 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	entity "github.com/takassh/super-shiharai-kun/entity"
+	"github.com/takassh/super-shiharai-kun/handler"
 	repo "github.com/takassh/super-shiharai-kun/repository"
 	req "github.com/takassh/super-shiharai-kun/request"
+	util "github.com/takassh/super-shiharai-kun/util"
+)
+
+var (
+	factory     = repo.NewRepositoryFactory(repo.DialectSQLite, true)
+	companyRepo = factory.NewCompanyRepository()
+	userRepo    = factory.NewUserRepository()
+	bankRepo    = factory.NewBankAccountRepository()
+	invoiceRepo = factory.NewInvoiceRepository()
 )
 
 func TestMain(m *testing.M) {
@@ -24,7 +34,7 @@ func TestMain(m *testing.M) {
 	repo.PopulateClient(companyRepo)
 	repo.PopulateBankAccount(bankRepo)
 	repo.PopulateInvoice(invoiceRepo)
-	loadErrors()
+	util.LoadErrors()
 
 	status := m.Run()
 
@@ -34,7 +44,7 @@ func TestMain(m *testing.M) {
 func TestCreateInvoices(t *testing.T) {
 	// Setup
 	e := echo.New()
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = &util.CustomValidator{Validator: validator.New()}
 	request := req.CreateInvoice{
 		Amount:   10000,
 		ClientID: 2,
@@ -46,12 +56,12 @@ func TestCreateInvoices(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.Set("user", &jwt.Token{
-		Claims: &Claims{
+		Claims: &util.Claims{
 			UserID: "1",
 		},
 	})
 	// Assertions
-	if assert.NoError(t, CreateInvoice(c)) {
+	if assert.NoError(t, handler.CreateInvoice(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		// parse
@@ -77,18 +87,18 @@ func TestCreateInvoices(t *testing.T) {
 func TestGetInvoices(t *testing.T) {
 	// Setup
 	e := echo.New()
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = &util.CustomValidator{Validator: validator.New()}
 	req := httptest.NewRequest(http.MethodGet, "/api/invoices?start_date=2025-04-01&due_date=2025-04-30", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.Set("user", &jwt.Token{
-		Claims: &Claims{
+		Claims: &util.Claims{
 			UserID:    "1",
 			CompanyID: "1",
 		},
 	})
 	// Assertions
-	if assert.NoError(t, GetInvoices(c)) {
+	if assert.NoError(t, handler.GetInvoices(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		// parse

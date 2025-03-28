@@ -10,14 +10,9 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/takassh/super-shiharai-kun/handler"
 	repo "github.com/takassh/super-shiharai-kun/repository"
-)
-
-// hard coded values
-const (
-	FEE_RATE     = 0.04
-	TAX_RATE     = 0.10
-	SIGNNING_KEY = "SIGNING_KEY"
+	"github.com/takassh/super-shiharai-kun/util"
 )
 
 var (
@@ -45,7 +40,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 }
 
 func main() {
-	loadErrors()
+	util.LoadErrors()
 	loadEnv()
 
 	// initialize data (this is just for testing)
@@ -61,23 +56,23 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// login
-	e.GET("/api/login/company/1", LoginCompany1)
-	e.GET("/api/login/company/2", LoginCompany2)
+	e.GET("/api/login/company/1", handler.LoginCompany1)
+	e.GET("/api/login/company/2", handler.LoginCompany2)
 
 	// JWT middleware setup
 	// Configure middleware with the custom claims type
 	config := echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(Claims)
+			return new(util.Claims)
 		},
-		SigningKey: []byte(os.Getenv("SIGNING_KEY")),
+		SigningKey: []byte(os.Getenv(util.SIGNNING_KEY)),
 	}
 
 	// invoices
 	i := e.Group("/api/invoices")
 	i.Use(echojwt.WithConfig(config))
-	i.POST("", CreateInvoice)
-	i.GET("", GetInvoices)
+	i.POST("", handler.CreateInvoice)
+	i.GET("", handler.GetInvoices)
 
 	e.Logger.Fatal(e.Start(":8080"))
 
