@@ -9,6 +9,9 @@
 ## DB
 - sqlite (in memory)
 
+## Env
+- `env.example` を `.env` にして使ってください。
+
 ## Endpoints
 - POST `/api/invoices`
 - Request Body
