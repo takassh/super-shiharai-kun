@@ -1,0 +1,15 @@
+{
+  "errors": {
+    "400-000": "failed to bind request",
+    "400-001": "user not found",
+    "400-002": "failed to parse request",  
+    "400-003": "client id must be different from your company id",
+    "400-004": "failed to convert request to entity",
+    "400-005": "company not found",
+    "400-006": "invalid request value",
+
+    "500-000": "internal error",
+    "500-001": "failed to save",
+    "500-002": "failed to find"
+  }
+}
